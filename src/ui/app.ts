@@ -446,8 +446,9 @@ async function onChange(el: HTMLElement) {
 }
 
 // ---------- arrastrar y soltar piezas en el repaso ----------
-let drag: { from: string; ghost: HTMLElement } | null = null;
+let drag: { from: string; ghost: HTMLElement | null; svg: SVGElement; x: number; y: number } | null = null;
 
+/** El arrastre solo empieza al mover el dedo o el ratón unos píxeles: un toque normal no dibuja ninguna pieza flotante. */
 function bindDrag() {
   document.addEventListener('pointerdown', (e) => {
     const t = e.target as Element;
@@ -458,20 +459,20 @@ function bindDrag() {
     const hadPiece = !!sq.querySelector('.pc');
     const svg = sq.querySelector('.pc')?.cloneNode(true) as SVGElement | undefined;
     handleSquare(name);
-    if (hadPiece && svg && S.sel === name) {
-      const ghost = document.createElement('div');
-      ghost.className = 'ghost';
-      ghost.appendChild(svg);
-      ghost.style.left = e.clientX + 'px';
-      ghost.style.top = e.clientY + 'px';
-      document.body.appendChild(ghost);
-      drag = { from: name, ghost };
-      S.drag = name;
-      document.querySelector(`button.sq[data-sq="${name}"]`)?.classList.add('drag');
-    }
+    if (hadPiece && svg && S.sel === name) drag = { from: name, ghost: null, svg, x: e.clientX, y: e.clientY };
   });
   document.addEventListener('pointermove', (e) => {
     if (!drag) return;
+    if (!drag.ghost) {
+      if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 8) return;
+      const ghost = document.createElement('div');
+      ghost.className = 'ghost';
+      ghost.appendChild(drag.svg);
+      document.body.appendChild(ghost);
+      drag.ghost = ghost;
+      S.drag = drag.from;
+      document.querySelector(`button.sq[data-sq="${drag.from}"]`)?.classList.add('drag');
+    }
     drag.ghost.style.left = e.clientX + 'px';
     drag.ghost.style.top = e.clientY + 'px';
   });
@@ -479,6 +480,7 @@ function bindDrag() {
     if (!drag) return;
     const { from, ghost } = drag;
     drag = null;
+    if (!ghost) return; // fue un toque, no un arrastre
     S.drag = null;
     ghost.remove();
     document.querySelector(`button.sq[data-sq="${from}"]`)?.classList.remove('drag');

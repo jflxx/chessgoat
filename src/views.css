@@ -371,3 +371,4 @@ label.f.sm { gap: 0; }
 
 /* Sin el destello gris al tocar en el móvil */
 .board, .board *, .btn, .rtab, button, a { -webkit-tap-highlight-color: transparent; }
+button.sq { touch-action: none; }
