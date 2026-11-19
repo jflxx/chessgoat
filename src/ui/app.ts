@@ -4,7 +4,7 @@ import { createStore } from '../storage/db';
 import type { Settings } from '../types';
 import { boardKey, replay as replayFn } from './board';
 import { ALGO_VERSION, retagGame } from '../core/analysis';
-import { $, download, esc } from './dom';
+import { $, download, esc, patchHTML } from './dom';
 import { ensurePlan, resetCycle, reviewedGame, toggleTask } from './planctl';
 import { cancelRun, liveEngine, paintProgress, startImport } from './runner';
 import { S, applyTheme, markActivity, message, onRender, render, saveSettings, toast } from './state';
@@ -118,8 +118,9 @@ function doRender() {
   const scrollY = window.scrollY;
   setCtl(null);
   if (route.name !== 'partida') stopLive();
-  app.innerHTML = shell(body());
-document.querySelector('.rtab[aria-current]')?.scrollIntoView({ inline: 'center', block: 'nearest' });
+  if (changed) app.innerHTML = shell(body());
+  else patchHTML(app, shell(body()));
+  document.querySelector('.rtab[aria-current]')?.scrollIntoView({ inline: 'center', block: 'nearest' });
   S.anim = null;
   document.title = TITLES[route.name] + ' · ChessGOAT';
   if (changed) {

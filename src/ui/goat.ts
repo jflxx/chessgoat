@@ -19,7 +19,7 @@ const eye = (cx: number, cy: number) =>
   `<g class="geye"><ellipse cx="${cx}" cy="${cy}" rx="6.4" ry="8.4" fill="#1d2340"/><circle cx="${cx + 2.2}" cy="${cy - 3}" r="2.6" fill="#fff"/><circle cx="${cx - 2}" cy="${cy + 3.2}" r="1.2" fill="#fff"/></g>`;
 
 /** `k` = brillante (salta, saluda, boca abierta, brillos); `h` = genial (guiño, sonrisa y saludo suave). */
-export function goatSVG(kind: Extract<Cls, 'k' | 'h'>): string {
+export function goatSVG(kind: Extract<Cls, 'k' | 'h'>, key = ''): string {
   const happy = kind === 'k';
   const eyes = happy
     ? eye(70, 64) + eye(97, 64)
@@ -32,7 +32,7 @@ export function goatSVG(kind: Extract<Cls, 'k' | 'h'>): string {
     ? star(22, 40, 9, 's1') + star(142, 34, 7, 's2') + star(134, 10, 5, 's3') + star(14, 88, 5, 's2') + star(148, 70, 4, 's3')
     : star(140, 30, 7, 's1') + star(20, 44, 5, 's3');
   const st = `stroke="${OL}" stroke-width="2.4" stroke-linejoin="round"`;
-  return `<div class="goat ${happy ? 'brill' : 'great'}" aria-hidden="true"><svg viewBox="0 0 160 180" focusable="false">
+  return `<div class="goat ${happy ? 'brill' : 'great'}" data-key="${key}" aria-hidden="true"><svg viewBox="0 0 160 180" focusable="false">
     <ellipse cx="82" cy="172" rx="46" ry="6.5" fill="#000" opacity=".16"/>
     <g class="gbob">
       <g class="gtail"><path d="M38 128C22 118 18 136 30 140C27 147 40 150 45 138Z" fill="${WHITE}" ${st}/></g>

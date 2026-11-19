@@ -368,3 +368,6 @@ label.f.sm { gap: 0; }
 @keyframes goat-twinkle { 0%, 100% { opacity: 0; transform: scale(.3) rotate(0); } 40% { opacity: 1; transform: scale(1.15) rotate(20deg); } 70% { opacity: .9; transform: scale(.85) rotate(-10deg); } }
 @media (max-width: 520px) { .mascot { grid-template-columns: 64px minmax(0, 1fr); } .goat { width: 64px; height: 72px; } }
 @media (prefers-reduced-motion: reduce) { .goat * { animation: none !important; } .goat .gsp { opacity: 1; } }
+
+/* Sin el destello gris al tocar en el móvil */
+.board, .board *, .btn, .rtab, button, a { -webkit-tap-highlight-color: transparent; }
