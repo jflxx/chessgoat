@@ -372,3 +372,26 @@ label.f.sm { gap: 0; }
 /* Sin el destello gris al tocar en el móvil */
 .board, .board *, .btn, .rtab, button, a { -webkit-tap-highlight-color: transparent; }
 button.sq { touch-action: none; }
+
+/* ---------- móvil: que lo importante quepa en pantalla y el botón principal siempre esté a mano ---------- */
+@media (max-width: 899px) {
+  .topbar { padding: 6px 12px; }
+  .topbar .who { display: none; }
+  main { padding-top: 14px; gap: 14px; }
+  .hide-m { display: none !important; }
+  /* el tablero se adapta al alto para que pregunta y botones se vean sin bajar */
+  .trainer { gap: 10px; }
+  .trainer > div:first-child { max-width: min(600px, calc(100dvh - 330px)); min-width: min(100%, 270px); }
+  .trainer .card { padding: 14px; gap: 10px; }
+  /* botones de acción fijos sobre la barra de navegación */
+  .exbtns { position: sticky; bottom: calc(58px + env(safe-area-inset-bottom)); z-index: 5; background: var(--surface); margin: 0 -14px -14px; padding: 10px 14px; border-top: 1px solid var(--border); border-radius: 0 0 var(--r) var(--r); box-shadow: 0 -8px 14px -10px rgba(0, 0, 0, .5); }
+  .exbtns .btn { flex: 1 1 0; min-height: 46px; padding-left: 6px; padding-right: 6px; font-size: 14px; white-space: nowrap; }
+  .exbtns .btn.primary { flex: 2 1 0; }
+  /* revisión: los controles de la partida quedan fijos sobre la barra de navegación para avanzar jugadas leyendo la nota */
+  .rv { padding-bottom: 64px; }
+  .rv .toolbar { position: fixed; left: 0; right: 0; bottom: calc(58px + env(safe-area-inset-bottom)); z-index: 6; margin: 0; padding: 8px 12px; background: var(--bg); border-top: 1px solid var(--border); flex-wrap: nowrap; justify-content: space-between; box-shadow: 0 -8px 14px -10px rgba(0, 0, 0, .5); }
+  .rv .toolbar .tg { display: flex; flex: 1 1 0; }
+  .rv .toolbar .tg:first-child { flex: 3 1 0; }
+  .rv .toolbar .tg:last-child { flex: 1.4 1 0; }
+  .rv .toolbar .tg .tbtn { flex: 1; height: 44px; }
+}

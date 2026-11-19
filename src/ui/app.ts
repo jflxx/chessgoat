@@ -116,6 +116,7 @@ function doRender() {
   const changed = key !== lastKey;
   lastKey = key;
   const scrollY = window.scrollY;
+  const prevEx = document.querySelector('[data-exid]')?.getAttribute('data-exid') ?? null;
   setCtl(null);
   if (route.name !== 'partida') stopLive();
   if (changed) app.innerHTML = shell(body());
@@ -127,7 +128,9 @@ function doRender() {
     window.scrollTo(0, 0);
     $('#main')?.focus({ preventScroll: true });
   } else {
-    window.scrollTo(0, scrollY);
+    // Un ejercicio nuevo empieza desde arriba; si no, se conserva la posición.
+    const nowEx = document.querySelector('[data-exid]')?.getAttribute('data-exid') ?? null;
+    window.scrollTo(0, nowEx !== prevEx ? 0 : scrollY);
     if (prev) {
       const el = [...app.querySelectorAll<HTMLElement>('[data-fk],[data-sq],[data-action]')].find((e) => focusKey(e) === prev);
       el?.focus({ preventScroll: true });

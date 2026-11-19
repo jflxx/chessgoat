@@ -36,8 +36,11 @@ export const clearEx = () => { ex = null; setCtl(null); };
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+let exSerial = 0;
+
 export function loadExercise(kind: Ex['kind'], spec: PuzzleSpec, onResult: Ex['onResult'], item?: DrillItem) {
   const pz = newPuzzle(spec);
+  exSerial++;
   ex = { kind, pz, item, flip: turnOf(spec.fen) === 'b', msg: null, busy: false, badge: null, hint: [], arrows: [], recorded: false, seq: 0, onResult };
   prewarm(item);
   S.sel = null;
@@ -245,11 +248,11 @@ export function exerciseHTML(v: ExView): string {
   if (finished(pz)) btns = `<button class="btn primary" data-action="ex-next" data-fk="ex-next">${v.next}</button>${v.links || ''}`;
   else if (pz.status === 'wrong') btns = `<button class="btn primary" data-action="ex-retry" data-fk="ex-retry" ${e.busy ? 'disabled' : ''}>Reintentar</button><button class="btn" data-action="ex-hint" ${e.busy ? 'disabled' : ''}>Pista</button><button class="btn" data-action="ex-reveal" ${e.busy ? 'disabled' : ''}>Ver solución</button>`;
   else btns = `<button class="btn" data-action="ex-hint" ${e.busy ? 'disabled' : ''}>Pista${pz.hintStep === pz.step && pz.stepHints ? ` (${pz.stepHints}/2)` : ''}</button><button class="btn" data-action="ex-reveal" ${e.busy ? 'disabled' : ''}>Ver solución</button><button class="btn" data-action="ex-skip" ${e.busy ? 'disabled' : ''}>Saltar</button>`;
-  return `<div class="trainer"><div><div class="pstrip"><span class="turn"><i class="${turn}" aria-hidden="true"></i>${turn === 'w' ? 'Juegan blancas' : 'Juegan negras'}</span>${pz.played.length ? `<span class="sub">${esc(pz.played.join(' '))}</span>` : ''}</div>${board}</div>
+  return `<div class="trainer" data-exid="${exSerial}"><div><div class="pstrip"><span class="turn"><i class="${turn}" aria-hidden="true"></i>${turn === 'w' ? 'Juegan blancas' : 'Juegan negras'}</span>${pz.played.length ? `<span class="sub">${esc(pz.played.join(' '))}</span>` : ''}</div>${board}</div>
     <div style="display:flex;flex-direction:column;gap:12px;min-width:0"><section class="card">${v.header}${fb}
-      <div class="row tight">${btns}</div>
-      ${canMove ? '<form class="row" data-action="ex-typed" autocomplete="off"><label class="f">O escribe la jugada (Cf3, e4, exd5…)<input type="text" name="san" autocapitalize="off" spellcheck="false" data-fk="san"></label><button class="btn" type="submit" style="flex:0 0 auto">Jugar</button></form>' : ''}
-      <p class="sub">Arrastra o toca la pieza y su destino. Teclado: flechas y Enter en el tablero · <span class="kbd">H</span> pista · <span class="kbd">R</span> reintentar · <span class="kbd">S</span> solución · <span class="kbd">N</span> siguiente</p></section></div></div>`;
+      <div class="row tight exbtns">${btns}</div>
+      ${canMove ? '<form class="row hide-m" data-action="ex-typed" autocomplete="off"><label class="f">O escribe la jugada (Cf3, e4, exd5…)<input type="text" name="san" autocapitalize="off" spellcheck="false" data-fk="san"></label><button class="btn" type="submit" style="flex:0 0 auto">Jugar</button></form>' : ''}
+      <p class="sub hide-m">Arrastra o toca la pieza y su destino. Teclado: flechas y Enter en el tablero · <span class="kbd">H</span> pista · <span class="kbd">R</span> reintentar · <span class="kbd">S</span> solución · <span class="kbd">N</span> siguiente</p></section></div></div>`;
 }
 
 /** Contexto de un error propio para mostrar encima. */
