@@ -6,6 +6,7 @@ import { Chess } from 'chess.js';
 import type { GameRec } from '../../types';
 import { boardHTML, evalBarHTML, fmtEval, replay, type Arrow } from '../board';
 import { evalSVG, legendErrors } from '../charts';
+import { goatSVG } from '../goat';
 import { colorLabel, esc, fmtDate, resultLabel } from '../dom';
 import { selectionProps, setCtl } from '../interact';
 import { livePanel, liveEvalWhite, stopLive } from '../live';
@@ -179,6 +180,7 @@ export function vReview(id: string): string {
       ${exp ? `<p>${esc(exp)}</p>` : mv.c === 'b' || mv.c === 'g' ? '<p class="sub">Sin problemas en esta jugada.</p>' : ''}
       ${bad ? thumbs(rec, p, fens, lm, flip) : ''}
       ${bad ? `<div class="cact"><button class="btn small ${S.alt ? 'primary' : ''}" data-action="alt" aria-pressed="${S.alt}">${S.alt ? 'Volver a la partida' : 'Ver ' + esc(mv.bs || 'la mejor')}</button><button class="btn small" data-action="play-best">Probar ${esc(mv.bs || 'la mejor')}</button>${isBigErr(mv.c) && mv.f ? `<button class="btn small primary" data-action="practice" data-key="${esc(rec.id)}:${p - 1}">Practicar</button>` : ''}</div>` : ''}</section>`;
+    if (mv.c === 'k' || mv.c === 'h') coach = `<div class="mascot">${goatSVG(mv.c)}${coach}</div>`;
   } else if (mv) {
     coach = `<section class="coachcard" aria-label="Jugada del rival"><div class="ch"><span class="cbadge">${p % 2 === 1 ? '♙' : '♟'}</span><div class="ct"><strong class="mvname">${Math.floor((p - 1) / 2) + 1}${p % 2 === 1 ? '.' : '...'} ${esc(mv.s)}</strong><span class="clab">Jugada de ${esc(rec.opp)}</span></div><div class="cev">${evChips}</div></div><p class="sub">Mueve piezas en el tablero para probar ideas.</p></section>`;
   } else {

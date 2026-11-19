@@ -336,3 +336,34 @@ label.f.sm { gap: 0; }
 .clrow .bar i.c-k { background: var(--brill); } .clrow .bar i.c-h { background: var(--great); }
 .pill.brill { border-color: var(--brill); color: var(--brill); } .pill.great { border-color: var(--great); color: var(--great); }
 .coach .face.c-k { background: var(--brill); } .coach .face.c-h { background: var(--great); }
+
+/* ---------- mascota: la cabra celebra las jugadas brillantes y geniales ---------- */
+.mascot { display: flex; flex-direction: column; gap: 0; }
+.mascot .goat { margin: 0 0 -6px 6px; position: relative; z-index: 1; }
+.mascot .coachcard { position: relative; border-left-width: 1px; border-top: 3px solid var(--brill); }
+.mascot .coachcard.k-h { border-top-color: var(--great); }
+.mascot .coachcard::before { content: ''; position: absolute; left: 44px; top: -8px; width: 12px; height: 12px; background: var(--surface); border-left: 1px solid var(--border); border-top: 1px solid var(--border); transform: rotate(45deg); }
+.goat { width: 104px; height: 117px; }
+.goat svg { width: 100%; height: 100%; overflow: visible; }
+.goat .gbob, .goat .gear, .goat .gsp, .goat .geye, .goat .geyes { transform-box: fill-box; transform-origin: center; }
+.goat.brill .gbob { transform-origin: 50% 100%; animation: goat-hop 1.1s cubic-bezier(.3, .7, .4, 1) 1, goat-sway 2.6s ease-in-out 1.1s infinite; }
+.goat.great .gbob { transform-origin: 50% 100%; animation: goat-nod .9s ease-in-out 1, goat-sway 3.2s ease-in-out .9s infinite; }
+.goat .gear.l { transform-box: view-box; transform-origin: 56px 62px; animation: goat-ear-l 1.4s ease-in-out .3s 3; }
+.goat .garm { transform-box: view-box; transform-origin: 60px 116px; animation: goat-wave .7s ease-in-out .5s 4; }
+.goat.great .garm { animation-iteration-count: 2; animation-duration: 1s; }
+.goat .gtail { transform-box: view-box; transform-origin: 42px 132px; animation: goat-tail .5s ease-in-out .4s 6; }
+.goat .gear.r { transform-box: view-box; transform-origin: 110px 62px; animation: goat-ear-r 1.4s ease-in-out .3s 3; }
+.goat .geye { animation: goat-blink 3.4s infinite 1.2s; }
+.goat .gsp { opacity: 0; animation: goat-twinkle 1.6s ease-in-out infinite; }
+.goat .gsp.s1 { animation-delay: .1s; } .goat .gsp.s2 { animation-delay: .6s; } .goat .gsp.s3 { animation-delay: 1.1s; }
+@keyframes goat-hop { 0% { transform: translateY(18px) scale(.8, 1.1); opacity: 0; } 25% { transform: translateY(-16px) scale(.95, 1.06); opacity: 1; } 45% { transform: translateY(0) scale(1.08, .92); } 62% { transform: translateY(-8px); } 80% { transform: translateY(0) scale(1.03, .97); } 100% { transform: none; } }
+@keyframes goat-nod { 0% { transform: translateY(14px); opacity: 0; } 40% { transform: translateY(-4px) rotate(-3deg); opacity: 1; } 65% { transform: rotate(3deg); } 100% { transform: none; } }
+@keyframes goat-sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg) translateY(-2px); } }
+@keyframes goat-wave { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-16deg); } }
+@keyframes goat-tail { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(14deg); } }
+@keyframes goat-ear-l { 0%, 100% { transform: rotate(0); } 40% { transform: rotate(-22deg); } 70% { transform: rotate(8deg); } }
+@keyframes goat-ear-r { 0%, 100% { transform: rotate(0); } 40% { transform: rotate(22deg); } 70% { transform: rotate(-8deg); } }
+@keyframes goat-blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
+@keyframes goat-twinkle { 0%, 100% { opacity: 0; transform: scale(.3) rotate(0); } 40% { opacity: 1; transform: scale(1.15) rotate(20deg); } 70% { opacity: .9; transform: scale(.85) rotate(-10deg); } }
+@media (max-width: 520px) { .goat { width: 84px; height: 94px; } }
+@media (prefers-reduced-motion: reduce) { .goat * { animation: none !important; } .goat .gsp { opacity: 1; } }
