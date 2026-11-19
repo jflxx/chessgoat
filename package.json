@@ -1,0 +1,29 @@
+{
+  "name": "chessgoat",
+  "version": "1.0.0",
+  "description": "ChessGOAT: analiza tus partidas con Stockfish en tu navegador y descubre qué estudiar.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "dependencies": {
+    "chess.js": "^1.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "fake-indexeddb": "^6.2.8",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  }
+}

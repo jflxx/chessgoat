@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="ChessGOAT: analiza tus partidas de Chess.com y Lichess con Stockfish en tu propio dispositivo y descubre qué estudiar para mejorar.">
+<meta name="theme-color" content="#121210">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>ChessGOAT</title>
+<script>
+  // Aplica el tema antes de pintar para evitar parpadeos.
+  try {
+    var t = localStorage.getItem('theme');
+    if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<div id="app"></div>
+<div class="tip" id="tip" role="tooltip"></div>
+<noscript><p style="padding:24px">Esta aplicación necesita JavaScript para analizar tus partidas en tu navegador.</p></noscript>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
