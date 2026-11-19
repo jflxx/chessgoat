@@ -238,7 +238,7 @@ export function exerciseHTML(v: ExView): string {
   const turn = turnOf(pz.fen);
   const myTurn = turnOf(pz.spec.fen);
   const board = boardHTML(pz.fen, {
-    flip: e.flip, last: pz.last, arrows: e.arrows, badge: e.badge, hint: e.hint, interactive: canMove, focusSq: S.focusSq, dragging: S.drag,
+    flip: e.flip, last: pz.last, arrows: e.arrows, badge: e.badge, hint: e.hint, interactive: true, locked: !canMove, focusSq: S.focusSq, dragging: S.drag,
     anim: S.settings.animations ? S.anim : null, promo: S.promo ? { color: turn } : null, ...selp,
     label: `Posición del ejercicio. ${turn === 'w' ? 'Juegan blancas' : 'Juegan negras'}.`,
   });

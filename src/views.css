@@ -395,3 +395,4 @@ button.sq { touch-action: none; }
   .rv .toolbar .tg:last-child { flex: 1.4 1 0; }
   .rv .toolbar .tg .tbtn { flex: 1; height: 44px; }
 }
+.sq.lock { cursor: default; }

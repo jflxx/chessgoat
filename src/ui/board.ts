@@ -17,6 +17,8 @@ export interface BoardOpts {
   targets?: string[];
   captures?: string[];
   interactive?: boolean;
+  /** Con `interactive`, el tablero sigue siendo de botones pero no responde (así no se reconstruye al bloquearse y desbloquearse). */
+  locked?: boolean;
   focusSq?: string;
   label?: string;
   /** Insignia de calidad de la jugada sobre la casilla de destino. */
@@ -64,7 +66,7 @@ function arrowSVG(arrows: Arrow[], flip: boolean): string {
 }
 
 export function boardHTML(fen: string, o: BoardOpts = {}): string {
-  const { flip = false, last = null, sel = null, targets = [], captures = [], interactive = false, badge = null, dragging = null, anim = null, hint = [], promo = null, mini = false } = o;
+  const { flip = false, last = null, sel = null, targets = [], captures = [], interactive = false, locked = false, badge = null, dragging = null, anim = null, hint = [], promo = null, mini = false } = o;
   const disp = (sq: string) => {
     const f = FILES.indexOf(sq[0]);
     const r = 8 - +sq[1];
@@ -103,7 +105,7 @@ export function boardHTML(fen: string, o: BoardOpts = {}): string {
       if (interactive) {
         const name = p ? `${PIECE_NAME[p.type]} ${p.color === 'w' ? 'blanco' : 'negro'}` : 'vacía';
         const extra = (sel === sq ? ', seleccionada' : '') + (targets.includes(sq) || captures.includes(sq) ? ', destino posible' : '');
-        s += `<button type="button" class="${cls.join(' ')}" data-sq="${sq}" data-f="${f}" data-r="${r}" tabindex="${sq === focus ? 0 : -1}" aria-label="${sq}, ${name}${extra}">${co}${piece}${bd}</button>`;
+        s += `<button type="button" class="${cls.join(' ')}${locked ? ' lock' : ''}" data-sq="${sq}" data-f="${f}" data-r="${r}" tabindex="${sq === focus && !locked ? 0 : -1}"${locked ? ' aria-disabled="true"' : ''} aria-label="${sq}, ${name}${extra}">${co}${piece}${bd}</button>`;
       } else {
         s += `<div class="${cls.join(' ')}" data-sq="${sq}">${co}${piece}${bd}</div>`;
       }

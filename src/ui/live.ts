@@ -4,7 +4,7 @@ import { MATE } from '../core/analysis';
 import { uciLineToSan } from '../core/puzzle';
 import type { EngineLine } from '../types';
 import { evalBarHTML, fmtEval } from './board';
-import { esc } from './dom';
+import { esc, patchHTML } from './dom';
 import { liveEngine } from './runner';
 import { S } from './state';
 
@@ -117,10 +117,19 @@ export function paintLive() {
   const panel = document.getElementById('live-lines');
   if (!panel || !curFen) return;
   const fen = curFen.split('|')[0];
-  panel.innerHTML = linesInner(fen);
+  patchHTML(panel, linesInner(fen));
   const cp = liveEvalWhite(fen);
   const bar = document.querySelector<HTMLElement>('.evalbar');
-  if (bar && cp != null) bar.outerHTML = evalBarHTML(cp, bar.classList.contains('flip'));
+  if (bar && cp != null) {
+    // Se actualiza en el sitio (sin recrear la barra) para que no parpadee.
+    const tmp = document.createElement('div');
+    tmp.innerHTML = evalBarHTML(cp, bar.classList.contains('flip'));
+    const nw = tmp.firstElementChild as HTMLElement;
+    const wEl = bar.querySelector<HTMLElement>('.ev-w'), tEl = bar.querySelector<HTMLElement>('.ev-t');
+    if (wEl) wEl.style.height = (nw.querySelector<HTMLElement>('.ev-w')?.style.height) || wEl.style.height;
+    if (tEl) { const nt = nw.querySelector('.ev-t')!; tEl.textContent = nt.textContent; tEl.className = nt.className; }
+    bar.setAttribute('aria-label', nw.getAttribute('aria-label') || '');
+  }
 }
 
 /** Tras un render completo: repinta con lo que haya (mantiene el panel al día). */
