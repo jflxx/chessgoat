@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { cleanSolve, hint, newPuzzle, playRefutation, playReply, playUser, retry, reveal, revealStep, uciLineToSan, updateRating, acceptAlternative, type PuzzleSpec } from '../src/core/puzzle';
+import { lastContext } from '../src/core/drills';
+import { mkGame } from './fixtures';
 import { PuzzleError, fetchLichessPuzzle, parseLichessPuzzle } from '../src/importers/puzzles';
 
 // Mate del pasillo: 1.Re8+ Rxe8 2.Rxe8#
@@ -124,5 +126,30 @@ describe('puzzles de Lichess', () => {
     expect(url).toBe('https://lichess.org/api/puzzle/next');
     await expect(fetchLichessPuzzle('fork', 'normal', async () => new Response('', { status: 429 }))).rejects.toThrow('esperar');
     await expect(fetchLichessPuzzle('fork', 'normal', async () => { throw new TypeError('x'); })).rejects.toThrow('conectar');
+  });
+});
+
+describe('jugada previa del rival', () => {
+  it('Lichess: reconstruye la posición anterior a la última jugada con la partida', () => {
+    // 1.e4 a6 2.e5 d5: el peón negro avanza dos casillas y las blancas pueden capturar al paso (exd6)
+    const spec = parseLichessPuzzle({
+      game: { pgn: 'e4 a6 e5 d5' },
+      puzzle: { id: 'ep', fen: 'rnbqkbnr/1pp1pppp/p7/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3', solution: ['e5d6'], lastMove: 'd7d5', rating: 1000, themes: [] },
+    });
+    expect(spec.prevFen).toBe('rnbqkbnr/1ppppppp/p7/4P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2');
+    expect(spec.lastMove).toBe('d7d5');
+  });
+
+  it('sin partida o si no coincide, no hay posición previa y no falla', () => {
+    const base = { id: 'x', fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1', solution: ['e7e5'], lastMove: 'e2e4', rating: 1, themes: [] };
+    expect(parseLichessPuzzle({ puzzle: base }).prevFen).toBeUndefined();
+    expect(parseLichessPuzzle({ game: { pgn: 'd4' }, puzzle: base }).prevFen).toBeUndefined();
+  });
+
+  it('en tus errores: posición anterior y última jugada del rival', () => {
+    const rec = mkGame('g1', { color: 'w', moves: ['e4', 'a6', 'e5', 'd5', 'exd6'].map((s) => ({ s, e: 0 })) });
+    expect(lastContext(rec, 4)).toEqual({ prevFen: 'rnbqkbnr/1ppppppp/p7/4P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2', lastMove: 'd7d5' });
+    expect(lastContext(rec, 0)).toBeNull();
+    expect(lastContext(rec, 1)).toEqual({ prevFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', lastMove: 'e2e4' });
   });
 });

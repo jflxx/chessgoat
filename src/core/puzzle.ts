@@ -9,6 +9,8 @@ export interface PuzzleSpec {
   /** Jugadas UCI alternas: tuya, rival, tuya… */
   solution: string[];
   lastMove?: string;
+  /** Posición justo antes de `lastMove` (la jugada del rival que lleva a `fen`), para mostrarla al empezar. */
+  prevFen?: string;
   rating?: number;
   themes?: string[];
   source: 'mine' | 'lichess';

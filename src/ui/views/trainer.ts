@@ -1,5 +1,5 @@
 // Repaso de tus errores con repetición espaciada (cajas de 0, 1, 3, 7, 14 y 30 días) y sesiones del plan.
-import { BOX_DAYS, allItems, filterItems, queue as buildQueue, type DrillFilter, type DrillItem } from '../../core/drills';
+import { BOX_DAYS, allItems, filterItems, lastContext, queue as buildQueue, type DrillFilter, type DrillItem } from '../../core/drills';
 import { esc } from '../dom';
 import { bumpTrainer } from '../daily';
 import { clearEx, currentEx, exerciseHTML, loadExercise, mineContext } from '../exercise';
@@ -81,12 +81,14 @@ export function summaryHTML(extra = ''): string {
     <div class="row tight"><a class="btn primary" href="#/plan" data-action="t-exit">Volver al plan</a><button class="btn" data-action="t-more">Seguir 5 más</button></div></section>`;
 }
 
+const specOf = (it: DrillItem) => ({ id: it.key, fen: it.fen, solution: [it.m.b!], source: 'mine' as const, ...(lastContext(it.rec, it.i) ?? {}) });
+
 /** Carga el siguiente error propio en el tablero. */
 function loadNext(): boolean {
   const q = candidates();
   if (!q.length) return false;
   const it = q[0];
-  loadExercise('mine', { id: it.key, fen: it.fen, solution: [it.m.b!], source: 'mine' }, (clean) => recordMine(it, clean), it);
+  loadExercise('mine', specOf(it), (clean) => recordMine(it, clean), it);
   return true;
 }
 
@@ -125,7 +127,7 @@ export function trainerSkip() {
   const idx = q.findIndex((x) => x.key === e.item!.key);
   const nx = q[(idx + 1) % q.length];
   if (!nx || nx.key === e.item.key) return;
-  loadExercise('mine', { id: nx.key, fen: nx.fen, solution: [nx.m.b!], source: 'mine' }, (clean) => recordMine(nx, clean), nx);
+  loadExercise('mine', specOf(nx), (clean) => recordMine(nx, clean), nx);
   render();
 }
 

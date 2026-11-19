@@ -1,4 +1,5 @@
 // Posiciones de repaso: tus errores graves, con filtros por motivo, patrón, apertura o partida.
+import { Chess } from 'chess.js';
 import type { GameRec, MoveRec, Tag, TrainerItem } from '../types';
 import { isBigErr } from './analysis';
 import { occurrences } from './patterns';
@@ -8,6 +9,20 @@ export interface DrillItem { key: string; gid: string; i: number; m: MoveRec; re
 export const OPENING_PLIES = 20;
 
 export interface DrillFilter { tag?: Tag; patternKey?: string; opening?: string; gameId?: string; itemKey?: string; /** Solo errores en las primeras `maxPly` medias jugadas. */ maxPly?: number }
+
+/** Posición antes de la última jugada del rival y esa jugada (UCI), para mostrarla antes del ejercicio. */
+export function lastContext(rec: GameRec, i: number): { prevFen: string; lastMove: string } | null {
+  if (i < 1) return null;
+  try {
+    const c = new Chess();
+    for (let k = 0; k < i - 1; k++) c.move(rec.moves[k].s);
+    const prevFen = c.fen();
+    const m = c.move(rec.moves[i - 1].s);
+    return { prevFen, lastMove: m.from + m.to + (m.promotion || '') };
+  } catch {
+    return null;
+  }
+}
 
 export function allItems(recs: GameRec[]): DrillItem[] {
   const out: DrillItem[] = [];

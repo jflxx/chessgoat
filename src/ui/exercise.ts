@@ -3,7 +3,7 @@
 import { MATE, PIECE_ES, TAG_ES, winPct } from '../core/analysis';
 import type { DrillItem } from '../core/drills';
 import { explainMove } from '../core/explain';
-import { acceptAlternative, cleanSolve, finished, hint, newPuzzle, playRefutation, playReply, playUser, retry, reveal, revealStep, turnOf, updateRating, type PState, type PuzzleSpec } from '../core/puzzle';
+import { acceptAlternative, applyUci, cleanSolve, finished, hint, newPuzzle, playRefutation, playReply, playUser, retry, reveal, revealStep, turnOf, updateRating, type PState, type PuzzleSpec } from '../core/puzzle';
 import type { Cls } from '../types';
 import { boardHTML, type Arrow } from './board';
 import { esc } from './dom';
@@ -28,6 +28,8 @@ export interface Ex {
   /** Se llama una vez al terminar: limpio = a la primera, sin pistas. */
   onResult: (clean: boolean) => Promise<void> | void;
   ratingDelta?: number;
+  /** Mientras no es null se muestra la posición anterior a la última jugada del rival (que se juega a continuación). */
+  introFen: string | null;
 }
 
 let ex: Ex | null = null;
@@ -41,14 +43,35 @@ let exSerial = 0;
 export function loadExercise(kind: Ex['kind'], spec: PuzzleSpec, onResult: Ex['onResult'], item?: DrillItem) {
   const pz = newPuzzle(spec);
   exSerial++;
-  ex = { kind, pz, item, flip: turnOf(spec.fen) === 'b', msg: null, busy: false, badge: null, hint: [], arrows: [], recorded: false, seq: 0, onResult };
+  ex = { kind, pz, item, flip: turnOf(spec.fen) === 'b', msg: null, busy: false, badge: null, hint: [], arrows: [], recorded: false, seq: 0, onResult, introFen: null };
+  if (spec.prevFen && spec.lastMove) {
+    const e = ex;
+    e.introFen = spec.prevFen;
+    e.busy = true;
+    e.msg = { kind: 'info', title: 'Mira la jugada del rival', text: 'Primero se juega su última jugada…' };
+    void playIntro(e);
+  }
   prewarm(item);
   S.sel = null;
   S.promo = null;
-  if (spec.lastMove) S.anim = { from: spec.lastMove.slice(0, 2), to: spec.lastMove.slice(2, 4) };
+  if (spec.lastMove && !spec.prevFen) S.anim = { from: spec.lastMove.slice(0, 2), to: spec.lastMove.slice(2, 4) };
 }
 
 /** Calienta el motor y prepara la evaluación previa para que la primera comprobación no espere. */
+/** Al entrar se ve la posición anterior y se juega la última jugada del rival, para no perderse nada (un peón que avanza dos casillas, un jaque…). */
+async function playIntro(e: Ex) {
+  const u = e.pz.spec.lastMove!;
+  const r = applyUci(e.introFen!, u);
+  await sleep(1000);
+  if (ex !== e) return;
+  e.introFen = null;
+  S.anim = { from: u.slice(0, 2), to: u.slice(2, 4) };
+  if (r) moveSound(r);
+  e.msg = r ? { kind: 'info', title: `El rival acaba de jugar ${r.san}`, text: 'Ahora te toca a ti.' } : null;
+  e.busy = false;
+  render();
+}
+
 function prewarm(item?: DrillItem) {
   void trainerEngine().catch(() => undefined);
   if (item) void beforeEval(item, CHECK_DEPTH).catch(() => undefined);
@@ -237,8 +260,8 @@ export function exerciseHTML(v: ExView): string {
   const selp = canMove ? selectionProps(pz.fen) : { sel: null, targets: [], captures: [] };
   const turn = turnOf(pz.fen);
   const myTurn = turnOf(pz.spec.fen);
-  const board = boardHTML(pz.fen, {
-    flip: e.flip, last: pz.last, arrows: e.arrows, badge: e.badge, hint: e.hint, interactive: true, locked: !canMove, focusSq: S.focusSq, dragging: S.drag,
+  const board = boardHTML(e.introFen ?? pz.fen, {
+    flip: e.flip, last: e.introFen ? null : pz.last, arrows: e.arrows, badge: e.badge, hint: e.hint, interactive: true, locked: !canMove, focusSq: S.focusSq, dragging: S.drag,
     anim: S.settings.animations ? S.anim : null, promo: S.promo ? { color: turn } : null, ...selp,
     label: `Posición del ejercicio. ${turn === 'w' ? 'Juegan blancas' : 'Juegan negras'}.`,
   });

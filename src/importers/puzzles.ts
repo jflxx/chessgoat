@@ -1,3 +1,4 @@
+import { Chess } from 'chess.js';
 // Puzzles por tema desde la API pública de Lichess (CORS permitido, sin cuenta).
 import { applyUci, type PuzzleSpec } from '../core/puzzle';
 import type { FetchFn } from './online';
@@ -27,7 +28,7 @@ export const DIFFICULTY_ES: Record<Difficulty, string> = { easiest: 'Muy fácil'
 
 export class PuzzleError extends Error {}
 
-interface LichessPuzzle { puzzle?: { id: string; fen?: string; solution: string[]; lastMove?: string; rating?: number; themes?: string[] } }
+interface LichessPuzzle { game?: { pgn?: string }; puzzle?: { id: string; fen?: string; solution: string[]; lastMove?: string; rating?: number; themes?: string[] } }
 
 export function parseLichessPuzzle(j: LichessPuzzle): PuzzleSpec {
   const p = j.puzzle;
@@ -39,7 +40,21 @@ export function parseLichessPuzzle(j: LichessPuzzle): PuzzleSpec {
     if (!r) throw new PuzzleError('El puzzle de Lichess no es válido.');
     fen = r.fen;
   }
-  return { id: 'li:' + p.id, fen: p.fen, solution: p.solution, lastMove: p.lastMove, rating: p.rating, themes: p.themes, source: 'lichess' };
+  // Posición anterior a la última jugada del rival: se reconstruye con la partida original.
+  let prevFen: string | undefined;
+  if (p.lastMove && j.game?.pgn) {
+    try {
+      const c = new Chess();
+      c.loadPgn(j.game.pgn);
+      const last = c.history({ verbose: true }).pop();
+      const same4 = (a: string, b: string) => a.split(' ').slice(0, 4).join(' ') === b.split(' ').slice(0, 4).join(' ');
+      if (last && last.from + last.to + (last.promotion || '') === p.lastMove && same4(c.fen(), p.fen)) {
+        c.undo();
+        prevFen = c.fen();
+      }
+    } catch { /* sin animación de la jugada previa */ }
+  }
+  return { id: 'li:' + p.id, fen: p.fen, solution: p.solution, lastMove: p.lastMove, prevFen, rating: p.rating, themes: p.themes, source: 'lichess' };
 }
 
 export async function fetchLichessPuzzle(theme: string, difficulty: Difficulty = 'normal', fetchFn?: FetchFn): Promise<PuzzleSpec> {
