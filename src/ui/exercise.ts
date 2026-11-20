@@ -57,7 +57,6 @@ export function loadExercise(kind: Ex['kind'], spec: PuzzleSpec, onResult: Ex['o
   if (spec.lastMove && !spec.prevFen) S.anim = { from: spec.lastMove.slice(0, 2), to: spec.lastMove.slice(2, 4) };
 }
 
-/** Calienta el motor y prepara la evaluación previa para que la primera comprobación no espere. */
 /** Al entrar se ve la posición anterior y se juega la última jugada del rival, para no perderse nada (un peón que avanza dos casillas, un jaque…). */
 async function playIntro(e: Ex) {
   const u = e.pz.spec.lastMove!;
@@ -72,6 +71,7 @@ async function playIntro(e: Ex) {
   render();
 }
 
+/** Calienta el motor y prepara la evaluación previa para que la primera comprobación no espere. */
 function prewarm(item?: DrillItem) {
   void trainerEngine().catch(() => undefined);
   if (item) void beforeEval(item, CHECK_DEPTH).catch(() => undefined);
@@ -106,7 +106,6 @@ export async function exMove(from: string, to: string, promotion?: string) {
   const e = ex;
   if (!e || e.busy || e.pz.status !== 'play') return;
   const uci = from + to + (promotion || '');
-  const before = e.pz.fen;
   const out = playUser(e.pz, uci);
   if (out.kind === 'illegal') { render(); return; }
   S.anim = { from, to };
@@ -134,7 +133,7 @@ export async function exMove(from: string, to: string, promotion?: string) {
   const token = ++e.seq;
   sound('bad');
   render();
-  void verifyWrong(e, token, out.san, before);
+  void verifyWrong(e, token, out.san);
 }
 
 const beforeCache = new Map<string, Promise<number>>();
@@ -154,7 +153,7 @@ function beforeEval(it: DrillItem, depth: number): Promise<number> {
 
 const CHECK_DEPTH = 12;
 
-async function verifyWrong(e: Ex, token: number, san: string, before: string) {
+async function verifyWrong(e: Ex, token: number, san: string) {
   const live = () => ex === e && e.seq === token && e.pz.status === 'wrong';
   let reply: string | null = null;
   let lossTxt = '';
@@ -181,7 +180,6 @@ async function verifyWrong(e: Ex, token: number, san: string, before: string) {
     }
   } catch { /* sin motor: sin refutación */ }
   if (!live()) return;
-  void before;
   const same = e.kind === 'mine' && san === e.item?.m.s;
   e.msg = { kind: 'bad', title: same ? 'Es la misma jugada de la partida' : 'No es la mejor', text: `${san}${lossTxt}.` };
   render();

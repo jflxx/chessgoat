@@ -121,7 +121,13 @@ function doRender() {
   if (route.name !== 'partida') stopLive();
   if (changed) app.innerHTML = shell(body());
   else patchHTML(app, shell(body()));
-  document.querySelector('.rtab[aria-current]')?.scrollIntoView({ inline: 'center', block: 'nearest' });
+  // Centra la pestaña activa del informe solo dentro de su barra: scrollIntoView movería también la página.
+  const rt = document.querySelector<HTMLElement>('.rtab[aria-current]');
+  const strip = rt?.parentElement;
+  if (rt && strip) {
+    const a = rt.getBoundingClientRect(), b = strip.getBoundingClientRect();
+    strip.scrollLeft += a.left - b.left - (b.width - a.width) / 2;
+  }
   S.anim = null;
   document.title = TITLES[route.name] + ' · ChessGOAT';
   if (changed) {
